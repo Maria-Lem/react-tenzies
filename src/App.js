@@ -7,6 +7,7 @@ import './App.css';
 function App() {
   const [dice, setDice] = useState(allNewDice());
   const [tenzies, setTenzies] = useState(false);
+  const [rollCount, setRollCount] = useState(0);
 
   useEffect(() => {
     const allHeld = dice.every(die => die.isHeld);
@@ -41,19 +42,21 @@ function App() {
   }
 
   function rollDice() {
-    setDice(prevDice => {
-      const allHeld = prevDice.every(die => die.isHeld);
-
-      if (allHeld) {
-        setTenzies(false);
-        return allNewDice();
-      } else {
+    if (!tenzies) {
+      setRollCount(prevCount => prevCount + 1);
+      setDice(prevDice => {
         return prevDice.map(die => {
           return die.isHeld ? die : newDie();
         })
+      })
+    } else {
+      // TODO set roll count to 0
+      setRollCount(0)
+      // TODO set time to 0
+      setTenzies(false);
+      setDice(allNewDice());
 
-      }
-    })
+    }
   }
 
   const dieElement = dice.map(die => (
@@ -76,6 +79,7 @@ function App() {
           {dieElement}
         </div>
         <button className="btn" onClick={rollDice}>{tenzies ? "New Game" : "Roll"}</button>
+        <p className="roll-count">Roll count: {rollCount}</p>
       </main>
     </div>
   );
