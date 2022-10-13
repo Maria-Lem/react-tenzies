@@ -5,7 +5,14 @@ export default function Die(props) {
   
   return (
     <>
-      <div className="die" style={styles}>{props.value}</div>
+      <div 
+        className="die" 
+        style={styles}
+        id={props.id} 
+        onClick={props.holdDice}
+        >
+          {props.value}
+      </div>
     </>
   )
 }
