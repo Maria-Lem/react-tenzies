@@ -8,16 +8,52 @@ function App() {
   const [dice, setDice] = useState(allNewDice());
   const [tenzies, setTenzies] = useState(false);
   const [rollCount, setRollCount] = useState(0);
+  const [time, setTime] = useState({
+    minutes: '00',
+    seconds: '00'
+  });
 
-  useEffect(() => {
+  const checkIfWon = () => {
     const allHeld = dice.every(die => die.isHeld);
     const firstValue = dice[0].value;
     const allTheSameValue = dice.every(die => die.value === firstValue);
-    
-    if (allHeld && allTheSameValue) {
+    return allHeld && allTheSameValue
+  }
+
+  const check = checkIfWon()
+
+  useEffect(() => {
+    if (check) {
       setTenzies(true);
     }
-  }, [dice])
+  }, [check, dice]);
+
+  useEffect(() => {
+    let totalSeconds = 0;
+    let intervId;
+    const pad = value => {
+      let valueStr = value + '';
+      return valueStr.length < 2 ? '0' + valueStr : valueStr;
+    }
+
+    if (!intervId && !check) {
+      intervId = setInterval(timeCount, 1000);
+    }
+
+    function timeCount() {
+      ++totalSeconds;
+      setTime(prevTime => ({
+        ...prevTime,
+        minutes: [pad(parseInt(totalSeconds / 60))],
+        seconds: [pad(totalSeconds % 60)]
+      }))
+    }
+
+    return () => {
+      clearInterval(intervId);
+      intervId = null;
+    }
+  }, [check])
 
   function newDie() {
     return {
@@ -50,12 +86,14 @@ function App() {
         })
       })
     } else {
-      // TODO set roll count to 0
+      setTime(prevTime => ({
+        ...prevTime,
+        minutes: '00',
+        seconds: '00'
+      }))
       setRollCount(0)
-      // TODO set time to 0
       setTenzies(false);
       setDice(allNewDice());
-
     }
   }
 
@@ -80,6 +118,7 @@ function App() {
         </div>
         <button className="btn" onClick={rollDice}>{tenzies ? "New Game" : "Roll"}</button>
         <p className="roll-count">Roll count: {rollCount}</p>
+        <p className="time">Time: {time.minutes}:{time.seconds}</p>
       </main>
     </div>
   );
